@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>Homeschool Assistant</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <style>
+        /* CSS Variables for Theming */
+        :root {
+            --color-primary: #7a8e9c;
+            --color-primary-dark: #4f46e5;
+            --color-secondary: #10b981;
+            --color-background: #ffffff;
+            --color-surface: #f9fafb;
+            --color-border: #e5e7eb;
+            --color-text: #1f2937;
+            --color-text-secondary: #6b7280;
+            --color-homeschool: #3b82f6;
+            --color-household: #10b981;
+            --color-danger: #ef4444;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* App Container */
+        .app {
+            max-width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 70px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            color: white;
+            padding: 1.5rem 1rem 1rem;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .menu-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 1.5rem 1rem;
+        }
+
+        /* Date Picker */
+        .date-picker {
+            background: var(--color-surface);
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .date-picker input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .date-picker input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        /* Filter Buttons */
+        .filter-buttons {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            flex: 1;
+            min-width: 80px;
+            padding: 0.625rem 1rem;
+            border: 2px solid var(--color-border);
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .filter-btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .filter-btn:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-2px);
+        }
+
+        /* Progress Bar */
+        .progress-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: var(--color-surface);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-secondary), #059669);
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 6px;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: var(--color-text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* Task List */
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .task-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1rem;
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid var(--color-primary);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .task-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .task-card.homeschool {
+            border-left-color: var(--color-homeschool);
+        }
+
+        .task-card.household {
+            border-left-color: var(--color-household);
+        }
+
+        .task-card.completed {
+            opacity: 0.7;
+        }
+
+        .task-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--color-border);
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+
+        .task-checkbox.checked {
+            background: var(--color-secondary);
+            border-color: var(--color-secondary);
+        }
+
+        .task-checkbox.checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .task-title {
+            flex: 1;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .task-title.completed {
+            text-decoration: line-through;
+        }
+
+        .task-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .task-badge.homeschool {
+            background: var(--color-homeschool);
+        }
+
+        .task-badge.household {
+            background: var(--color-household);
+        }
+
+        .task-details {
+            padding-left: 2rem;
+            color: var(--color-text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .task-time {
+            font-weight: 500;
+            color: var(--color-text);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--color-text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-text);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-around;
+            padding: 0.5rem 0;
+            z-index: 100;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: var(--color-text-secondary);
+            transition: var(--transition);
+        }
+
+        .nav-item.active {
+            color: var(--color-primary);
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+        }
+
+        .nav-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--radius);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--color-text-secondary);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .close-btn:hover {
+            background: var(--color-surface);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .range-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .range-input {
+            flex: 1;
+        }
+
+        .range-value {
+            font-weight: 600;
+            color: var(--color-primary);
+            min-width: 60px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: var(--color-surface);
+            color: var(--color-text);
+            border: 2px solid var(--color-border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--color-primary);
+        }
+
+        .btn-danger {
+            background: var(--color-danger);
+            color: white;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Favorites List */
+        .favorite-item {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .favorite-item:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .favorite-info {
+            flex: 1;
+        }
+
+        .favorite-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .favorite-meta {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+        }
+
+        .favorite-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--color-surface);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            font-size: 1.25rem;
+        }
+
+        .icon-btn:hover {
+            background: var(--color-primary);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* FAB (Floating Action Button) */
+        .fab {
+            position: fixed;
+            bottom: 90px;
+            right: 1.5rem;
+            width: 56px;
+            height: 56px;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            z-index: 50;
+        }
+
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .task-card {
+            animation: slideIn 0.3s ease;
+        }
+
+        /* Print Styles */
+        @media print {
+            .header,
+            .bottom-nav,
+            .fab,
+            .filter-buttons,
+            .menu-btn {
+                display: none !important;
+            }
+
+            .app {
+                padding-bottom: 0;
+            }
+
+            .task-card {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .header h1 {
+                font-size: 1.25rem;
+            }
+
+            .filter-btn {
+                font-size: 0.875rem;
+                padding: 0.5rem 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app" id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 id="headerTitle">Today's Schedule</h1>
+                <button class="menu-btn" onclick="showMenu()">⋯</button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content" id="mainContent">
+            <!-- Content will be dynamically loaded here -->
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="showView('today')">
+                <span class="nav-icon">📅</span>
+                <span class="nav-label">Today</span>
+            </button>
+            <button class="nav-item" onclick="showView('schedule')">
+                <span class="nav-icon">📆</span>
+                <span class="nav-label">Schedule</span>
+            </button>
+            <button class="nav-item" onclick="showView('favorites')">
+                <span class="nav-icon">⭐</span>
+                <span class="nav-label">Favorites</span>
+            </button>
+            <button class="nav-item" onclick="showView('settings')">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label">Settings</span>
+            </button>
+        </nav>
+
+        <!-- Floating Action Button -->
+        <button class="fab" id="fab" onclick="showAddTaskModal()">+</button>
+    </div>
+
+    <!-- Modals will be injected here -->
+    <div id="modalContainer"></div>
+
+    <script>
+        // Data Storage Manager
+        class DataManager {
+            constructor() {
+                this.tasks = this.loadTasks();
+                this.favorites = this.loadFavorites();
+                this.settings = this.loadSettings();
+            }
+
+            loadTasks() {
+                const data = localStorage.getItem('homeschool_tasks');
+                return data ? JSON.parse(data) : [];
+            }
+
+            saveTasks() {
+                localStorage.setItem('homeschool_tasks', JSON.stringify(this.tasks));
+            }
+
+            loadFavorites() {
+                const data = localStorage.getItem('homeschool_favorites');
+                return data ? JSON.parse(data) : [];
+            }
+
+            saveFavorites() {
+                localStorage.setItem('homeschool_favorites', JSON.stringify(this.favorites));
+            }
+
+            loadSettings() {
+                const data = localStorage.getItem('homeschool_settings');
+                return data ? JSON.parse(data) : {
+                    defaultHomeschoolDuration: 30,
+                    defaultHouseholdDuration: 15,
+                    printFormat: 'detailed'
+                };
+            }
+
+            saveSettings() {
+                localStorage.setItem('homeschool_settings', JSON.stringify(this.settings));
+            }
+
+            getTasksForDate(date) {
+                const dateStr = this.formatDate(date);
+                return this.tasks.filter(task => task.date === dateStr);
+            }
+
+            addTask(task) {
+                task.id = Date.now().toString();
+                task.createdAt = new Date().toISOString();
+                this.tasks.push(task);
+                this.saveTasks();
+            }
+
+            updateTask(taskId, updates) {
+                const index = this.tasks.findIndex(t => t.id === taskId);
+                if (index !== -1) {
+                    this.tasks[index] = { ...this.tasks[index], ...updates };
+                    this.saveTasks();
+                }
+            }
+
+            deleteTask(taskId) {
+                this.tasks = this.tasks.filter(t => t.id !== taskId);
+                this.saveTasks();
+            }
+
+            toggleTaskCompletion(taskId) {
+                const task = this.tasks.find(t => t.id === taskId);
+                if (task) {
+                    task.completed = !task.completed;
+                    task.completedAt = task.completed ? new Date().toISOString() : null;
+                    this.saveTasks();
+                }
+            }
+
+            addFavorite(favorite) {
+                favorite.id = Date.now().toString();
+                favorite.usageCount = 0;
+                this.favorites.push(favorite);
+                this.saveFavorites();
+            }
+
+            updateFavorite(favoriteId, updates) {
+                const index = this.favorites.findIndex(f => f.id === favoriteId);
+                if (index !== -1) {
+                    this.favorites[index] = { ...this.favorites[index], ...updates };
+                    this.saveFavorites();
+                }
+            }
+
+            deleteFavorite(favoriteId) {
+                this.favorites = this.favorites.filter(f => f.id !== favoriteId);
+                this.saveFavorites();
+            }
+
+            incrementFavoriteUsage(favoriteId) {
+                const favorite = this.favorites.find(f => f.id === favoriteId);
+                if (favorite) {
+                    favorite.usageCount = (favorite.usageCount || 0) + 1;
+                    favorite.lastUsed = new Date().toISOString();
+                    this.saveFavorites();
+                }
+            }
+
+            formatDate(date) {
+                return date.toISOString().split('T')[0];
+            }
+
+            getCompletionPercentage(tasks) {
+                if (tasks.length === 0) return 0;
+                const completed = tasks.filter(t => t.completed).length;
+                return Math.round((completed / tasks.length) * 100);
+            }
+        }
+
+        // Initialize Data Manager
+        const dataManager = new DataManager();
+        let currentView = 'today';
+        let currentDate = new Date();
+        let currentFilter = 'all';
+
+        // View Management
+        function showView(viewName) {
+            currentView = viewName;
+            
+            // Update nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+
+            // Update header
+            const titles = {
+                'today': "Today's Schedule",
+                'schedule': 'Schedule',
+                'favorites': 'Favorites',
+                'settings': 'Settings'
+            };
+            document.getElementById('headerTitle').textContent = titles[viewName];
+
+            // Show/hide FAB
+            const fab = document.getElementById('fab');
+            if (viewName === 'today' || viewName === 'favorites') {
+                fab.classList.remove('hidden');
+                fab.onclick = viewName === 'today' ? showAddTaskModal : showAddFavoriteModal;
+            } else {
+                fab.classList.add('hidden');
+            }
+
+            // Render view
+            renderView(viewName);
+        }
+
+        function renderView(viewName) {
+            const content = document.getElementById('mainContent');
+            
+            switch(viewName) {
+                case 'today':
+                    renderTodayView(content);
+                    break;
+                case 'schedule':
+                    renderScheduleView(content);
+                    break;
+                case 'favorites':
+                    renderFavoritesView(content);
+                    break;
+                case 'settings':
+                    renderSettingsView(content);
+                    break;
+            }
+        }
+
+        // Today View
+        function renderTodayView(container) {
+            const tasks = dataManager.getTasksForDate(currentDate);
+            const filteredTasks = currentFilter === 'all' ? tasks : 
+                                 tasks.filter(t => t.type === currentFilter);
+            
+            const completionPercentage = dataManager.getCompletionPercentage(tasks);
+
+            container.innerHTML = `
+                <div class="date-picker">
+                    <input type="date" 
+                           value="${dataManager.formatDate(currentDate)}" 
+                           onchange="changeDate(this.value)">
+                </div>
+
+                <div class="filter-buttons">
+                    <button class="filter-btn ${currentFilter === 'all' ? 'active' : ''}" 
+                            onclick="setFilter('all')">All</button>
+                    <button class="filter-btn ${currentFilter === 'homeschool' ? 'active' : ''}" 
+                            onclick="setFilter('homeschool')">Homeschool</button>
+                    <button class="filter-btn ${currentFilter === 'household' ? 'active' : ''}" 
+                            onclick="setFilter('household')">Household</button>
+                </div>
+
+                ${tasks.length > 0 ? `
+                    <div class="progress-section">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${completionPercentage}%"></div>
+                        </div>
+                        <div class="progress-text">${completionPercentage}% Complete</div>
+                    </div>
+                ` : ''}
+
+                <div class="task-list">
+                    ${filteredTasks.length === 0 ? `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📝</div>
+                            <h3>No tasks scheduled</h3>
+                            <p>Tap + to add a task or select from favorites</p>
+                        </div>
+                    ` : filteredTasks.map(task => renderTaskCard(task)).join('')}
+                </div>
+            `;
+        }
+
+        function renderTaskCard(task) {
+            return `
+                <div class="task-card ${task.type} ${task.completed ? 'completed' : ''}" 
+                     onclick="showTaskDetail('${task.id}')">
+                    <div class="task-header">
+                        <div class="task-checkbox ${task.completed ? 'checked' : ''}" 
+                             onclick="event.stopPropagation(); toggleTask('${task.id}')"></div>
+                        <div class="task-title ${task.completed ? 'completed' : ''}">${task.title}</div>
+                        <span class="task-badge ${task.type}">${task.type}</span>
+                    </div>
+                    <div class="task-details">
+                        <div class="task-time">${task.startTime || 'No time set'} • ${task.duration} min</div>
+                        ${task.notes ? `<div>${task.notes}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function changeDate(dateStr) {
+            currentDate = new Date(dateStr + 'T12:00:00');
+            renderView('today');
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            renderView('today');
+        }
+
+        function toggleTask(taskId) {
+            dataManager.toggleTaskCompletion(taskId);
+            renderView('today');
+        }
+
+        // Schedule View
+        function renderScheduleView(container) {
+            const today = new Date();
+            const weekDates = getWeekDates(today);
+            
+            container.innerHTML = `
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">This Week</h2>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    ${weekDates.map(date => {
+                        const tasks = dataManager.getTasksForDate(date);
+                        const isToday = dataManager.formatDate(date) === dataManager.formatDate(today);
+                        
+                        return `
+                            <div style="background: white; border-radius: var(--radius); padding: 1rem; box-shadow: var(--shadow-sm); ${isToday ? 'border: 2px solid var(--color-primary);' : ''}">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                    <div>
+                                        <div style="font-weight: 700; font-size: 1.125rem;">${date.toLocaleDateString('en-US', { weekday: 'long' })}</div>
+                                        <div style="color: var(--color-text-secondary); font-size: 0.875rem;">${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-weight: 600;">${tasks.length} tasks</div>
+                                        ${tasks.length > 0 ? `<div style="color: var(--color-text-secondary); font-size: 0.875rem;">${dataManager.getCompletionPercentage(tasks)}%</div>` : ''}
+                                    </div>
+                                </div>
+                                ${tasks.length > 0 ? `
+                                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                        ${tasks.filter(t => t.type === 'homeschool').length > 0 ? `
+                                            <span style="padding: 0.25rem 0.75rem; background: var(--color-homeschool); color: white; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">
+                                                📚 ${tasks.filter(t => t.type === 'homeschool').length}
+                                            </span>
+                                        ` : ''}
+                                        ${tasks.filter(t => t.type === 'household').length > 0 ? `
+                                            <span style="padding: 0.25rem 0.75rem; background: var(--color-household); color: white; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">
+                                                🏠 ${tasks.filter(t => t.type === 'household').length}
+                                            </span>
+                                        ` : ''}
+                                    </div>
+                                ` : '<div style="color: var(--color-text-secondary); font-size: 0.875rem;">No tasks scheduled</div>'}
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        function getWeekDates(startDate) {
+            const dates = [];
+            const date = new Date(startDate);
+            date.setDate(date.getDate() - date.getDay()); // Start from Sunday
+            
+            for (let i = 0; i < 7; i++) {
+                dates.push(new Date(date));
+                date.setDate(date.getDate() + 1);
+            }
+            
+            return dates;
+        }
+
+        // Favorites View
+        function renderFavoritesView(container) {
+            const favorites = dataManager.favorites.sort((a, b) => 
+                (b.lastUsed || 0) - (a.lastUsed || 0)
+            );
+
+            container.innerHTML = `
+                ${favorites.length === 0 ? `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⭐</div>
+                        <h3>No favorites yet</h3>
+                        <p>Create favorites for tasks you use frequently</p>
+                    </div>
+                ` : favorites.map(fav => `
+                    <div class="favorite-item">
+                        <div class="favorite-info">
+                            <div class="favorite-title">${fav.title}</div>
+                            <div class="favorite-meta">
+                                ${fav.type} • ${fav.duration} min
+                                ${fav.usageCount ? ` • Used ${fav.usageCount}x` : ''}
+                            </div>
+                        </div>
+                        <div class="favorite-actions">
+                            <button class="icon-btn" onclick="quickAddFromFavorite('${fav.id}')" title="Quick Add">+</button>
+                            <button class="icon-btn" onclick="editFavorite('${fav.id}')" title="Edit">✎</button>
+                            <button class="icon-btn" onclick="deleteFavorite('${fav.id}')" title="Delete">🗑</button>
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        // Settings View
+        function renderSettingsView(container) {
+            const settings = dataManager.settings;
+
+            container.innerHTML = `
+                <div style="background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow-sm);">
+                    <h3 style="margin-bottom: 1.5rem; font-size: 1.25rem;">Default Durations</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Homeschool Tasks: <span id="homeschoolDurationValue">${settings.defaultHomeschoolDuration}</span> minutes</label>
+                        <input type="range" class="form-input" min="5" max="120" step="5" 
+                               value="${settings.defaultHomeschoolDuration}"
+                               oninput="updateSetting('defaultHomeschoolDuration', this.value); document.getElementById('homeschoolDurationValue').textContent = this.value">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Household Tasks: <span id="householdDurationValue">${settings.defaultHouseholdDuration}</span> minutes</label>
+                        <input type="range" class="form-input" min="5" max="120" step="5" 
+                               value="${settings.defaultHouseholdDuration}"
+                               oninput="updateSetting('defaultHouseholdDuration', this.value); document.getElementById('householdDurationValue').textContent = this.value">
+                    </div>
+
+                    <h3 style="margin: 2rem 0 1.5rem; font-size: 1.25rem;">Data Management</h3>
+                    
+                    <button class="btn btn-secondary btn-full" onclick="exportData()" style="margin-bottom: 1rem;">
+                        📤 Export All Data
+                    </button>
+                    
+                    <button class="btn btn-danger btn-full" onclick="resetAllData()">
+                        🗑 Reset All Data
+                    </button>
+
+                    <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; color: var(--color-text-secondary);">
+                        <p><strong>Total Schedules:</strong> ${new Set(dataManager.tasks.map(t => t.date)).size}</p>
+                        <p><strong>Total Tasks:</strong> ${dataManager.tasks.length}</p>
+                        <p><strong>Total Favorites:</strong> ${dataManager.favorites.length}</p>
+                        <p style="margin-top: 1rem; font-size: 0.875rem;">Version 1.0.0</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateSetting(key, value) {
+            dataManager.settings[key] = parseInt(value);
+            dataManager.saveSettings();
+        }
+
+        function exportData() {
+            const data = {
+                tasks: dataManager.tasks,
+                favorites: dataManager.favorites,
+                settings: dataManager.settings,
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `homeschool-backup-${dataManager.formatDate(new Date())}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function resetAllData() {
+            if (confirm('Are you sure you want to delete all data? This cannot be undone.')) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        // Modal Functions
+        function showAddTaskModal(taskId = null) {
+            const task = taskId ? dataManager.tasks.find(t => t.id === taskId) : null;
+            const isEdit = !!task;
+
+            const modal = createModal(`
+                <div class="modal-header">
+                    <h2>${isEdit ? 'Edit Task' : 'New Task'}</h2>
+                    <button class="close-btn" onclick="closeModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <form id="taskForm" onsubmit="saveTask(event, '${taskId || ''}')">
+                        <div class="form-group">
+                            <label class="form-label">Title</label>
+                            <input type="text" class="form-input" name="title" value="${task?.title || ''}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <input type="text" class="form-input" name="description" value="${task?.description || ''}">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Type</label>
+                            <select class="form-select" name="type" required>
+                                <option value="homeschool" ${task?.type === 'homeschool' ? 'selected' : ''}>Homeschool</option>
+                                <option value="household" ${task?.type === 'household' ? 'selected' : ''}>Household</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-input" name="date" 
+                                   value="${task?.date || dataManager.formatDate(currentDate)}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Start Time</label>
+                            <input type="time" class="form-input" name="startTime" value="${task?.startTime || '09:00'}">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Duration: <span id="durationValue">${task?.duration || 30}</span> minutes</label>
+                            <input type="range" class="form-input" name="duration" min="5" max="180" step="5" 
+                                   value="${task?.duration || 30}"
+                                   oninput="document.getElementById('durationValue').textContent = this.value">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-textarea" name="notes">${task?.notes || ''}</textarea>
+                        </div>
+
+                        <div class="button-group">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                            <button type="submit" class="btn btn-primary">${isEdit ? 'Update' : 'Save'}</button>
+                        </div>
+                    </form>
+                </div>
+            `);
+
+            showModal(modal);
+        }
+
+        function saveTask(event, taskId) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            
+            const taskData = {
+                title: formData.get('title'),
+                description: formData.get('description'),
+                type: formData.get('type'),
+                date: formData.get('date'),
+                startTime: formData.get('startTime'),
+                duration: parseInt(formData.get('duration')),
+                notes: formData.get('notes'),
+                completed: false
+            };
+
+            if (taskId) {
+                dataManager.updateTask(taskId, taskData);
+            } else {
+                dataManager.addTask(taskData);
+            }
+
+            closeModal();
+            renderView(currentView);
+        }
+
+        function showTaskDetail(taskId) {
+            const task = dataManager.tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            const modal = createModal(`
+                <div class="modal-header">
+                    <h2>Task Details</h2>
+                    <button class="close-btn" onclick="closeModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div style="margin-bottom: 1.5rem;">
+                        <div style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">${task.title}</div>
+                        <span class="task-badge ${task.type}">${task.type}</span>
+                    </div>
+
+                    ${task.description ? `<p style="margin-bottom: 1rem;">${task.description}</p>` : ''}
+
+                    <div style="background: var(--color-surface); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                        <div style="margin-bottom: 0.5rem;"><strong>Time:</strong> ${task.startTime || 'Not set'}</div>
+                        <div style="margin-bottom: 0.5rem;"><strong>Duration:</strong> ${task.duration} minutes</div>
+                        <div><strong>Status:</strong> <span style="color: ${task.completed ? 'var(--color-secondary)' : 'orange'};">${task.completed ? 'Completed' : 'Pending'}</span></div>
+                    </div>
+
+                    ${task.notes ? `
+                        <div style="margin-bottom: 1.5rem;">
+                            <strong>Notes:</strong>
+                            <p style="margin-top: 0.5rem; color: var(--color-text-secondary);">${task.notes}</p>
+                        </div>
+                    ` : ''}
+
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="showAddTaskModal('${task.id}')">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteTask('${task.id}')">Delete</button>
+                    </div>
+                </div>
+            `);
+
+            showModal(modal);
+        }
+
+        function deleteTask(taskId) {
+            if (confirm('Delete this task?')) {
+                dataManager.deleteTask(taskId);
+                closeModal();
+                renderView(currentView);
+            }
+        }
+
+        function showAddFavoriteModal(favoriteId = null) {
+            const favorite = favoriteId ? dataManager.favorites.find(f => f.id === favoriteId) : null;
+            const isEdit = !!favorite;
+
+            const modal = createModal(`
+                <div class="modal-header">
+                    <h2>${isEdit ? 'Edit Favorite' : 'New Favorite'}</h2>
+                    <button class="close-btn" onclick="closeModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <form id="favoriteForm" onsubmit="saveFavorite(event, '${favoriteId || ''}')">
+                        <div class="form-group">
+                            <label class="form-label">Title</label>
+                            <input type="text" class="form-input" name="title" value="${favorite?.title || ''}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <input type="text" class="form-input" name="description" value="${favorite?.description || ''}">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Type</label>
+                            <select class="form-select" name="type" required>
+                                <option value="homeschool" ${favorite?.type === 'homeschool' ? 'selected' : ''}>Homeschool</option>
+                                <option value="household" ${favorite?.type === 'household' ? 'selected' : ''}>Household</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Default Duration: <span id="favDurationValue">${favorite?.duration || 30}</span> minutes</label>
+                            <input type="range" class="form-input" name="duration" min="5" max="180" step="5" 
+                                   value="${favorite?.duration || 30}"
+                                   oninput="document.getElementById('favDurationValue').textContent = this.value">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-textarea" name="notes">${favorite?.notes || ''}</textarea>
+                        </div>
+
+                        <div class="button-group">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                            <button type="submit" class="btn btn-primary">${isEdit ? 'Update' : 'Save'}</button>
+                        </div>
+                    </form>
+                </div>
+            `);
+
+            showModal(modal);
+        }
+
+        function saveFavorite(event, favoriteId) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            
+            const favoriteData = {
+                title: formData.get('title'),
+                description: formData.get('description'),
+                type: formData.get('type'),
+                duration: parseInt(formData.get('duration')),
+                notes: formData.get('notes')
+            };
+
+            if (favoriteId) {
+                dataManager.updateFavorite(favoriteId, favoriteData);
+            } else {
+                dataManager.addFavorite(favoriteData);
+            }
+
+            closeModal();
+            renderView('favorites');
+        }
+
+        function editFavorite(favoriteId) {
+            showAddFavoriteModal(favoriteId);
+        }
+
+        function deleteFavorite(favoriteId) {
+            if (confirm('Delete this favorite?')) {
+                dataManager.deleteFavorite(favoriteId);
+                renderView('favorites');
+            }
+        }
+
+        function quickAddFromFavorite(favoriteId) {
+            const favorite = dataManager.favorites.find(f => f.id === favoriteId);
+            if (!favorite) return;
+
+            const modal = createModal(`
+                <div class="modal-header">
+                    <h2>Quick Add: ${favorite.title}</h2>
+                    <button class="close-btn" onclick="closeModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="createTaskFromFavorite(event, '${favoriteId}')">
+                        <div class="form-group">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-input" name="date" 
+                                   value="${dataManager.formatDate(currentDate)}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Start Time</label>
+                            <input type="time" class="form-input" name="startTime" value="09:00" required>
+                        </div>
+
+                        <div class="button-group">
+                            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Add Task</button>
+                        </div>
+                    </form>
+                </div>
+            `);
+
+            showModal(modal);
+        }
+
+        function createTaskFromFavorite(event, favoriteId) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const favorite = dataManager.favorites.find(f => f.id === favoriteId);
+            
+            const taskData = {
+                title: favorite.title,
+                description: favorite.description,
+                type: favorite.type,
+                date: formData.get('date'),
+                startTime: formData.get('startTime'),
+                duration: favorite.duration,
+                notes: favorite.notes,
+                completed: false
+            };
+
+            dataManager.addTask(taskData);
+            dataManager.incrementFavoriteUsage(favoriteId);
+            closeModal();
+            showView('today');
+        }
+
+        function showMenu() {
+            const modal = createModal(`
+                <div class="modal-header">
+                    <h2>Menu</h2>
+                    <button class="close-btn" onclick="closeModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <button class="btn btn-primary btn-full" onclick="printSchedule()" style="margin-bottom: 1rem;">
+                        🖨️ Print Today's Schedule
+                    </button>
+                    <button class="btn btn-secondary btn-full" onclick="exportData()">
+                        📤 Export Data
+                    </button>
+                </div>
+            `);
+
+            showModal(modal);
+        }
+
+        function printSchedule() {
+            window.print();
+        }
+
+        // Modal Helpers
+        function createModal(content) {
+            return `
+                <div class="modal" id="currentModal">
+                    <div class="modal-content">
+                        ${content}
+                    </div>
+                </div>
+            `;
+        }
+
+        function showModal(modalHTML) {
+            document.getElementById('modalContainer').innerHTML = modalHTML;
+            const modal = document.getElementById('currentModal');
+            setTimeout(() => modal.classList.add('show'), 10);
+            
+            // Close on backdrop click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('currentModal');
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    document.getElementById('modalContainer').innerHTML = '';
+                }, 300);
+            }
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            renderView('today');
+            
+            // Register Service Worker for PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js').catch(() => {});
+            }
+        });
+    </script>
+</body>
+</html>

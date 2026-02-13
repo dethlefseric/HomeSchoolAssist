@@ -1,0 +1,11 @@
+To create your app icon:
+1. Visit https://favicon.io/favicon-generator/
+2. Create a 192x192px icon with your chosen design
+3. Save as icon-192.png and icon-512.png
+4. Place in the same folder as index.html
+
+Or use this simple placeholder:
+- Open any image editor
+- Create a 192x192 image with a colored background
+- Add text "HS" (for Homeschool)
+- Save as PNG
